@@ -5,6 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import aquarelle from './aquarelle.png';
+import neotraditional from './neotraditional.jpg';
+import geometric from './geometric.jpg';
+import dragon from './dragon.jpg';
 import { 
   Image as ImageIcon, 
   Download, 
@@ -20,7 +24,6 @@ import {
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 
-// Інтерфейс для даних зображення галереї
 interface GalleryImage {
   id: number;
   userId: number;
@@ -38,58 +41,59 @@ export default function GalleryPage() {
   const { toast } = useToast();
   const [search, setSearch] = useState("");
   const [selectedStyle, setSelectedStyle] = useState("");
+  const [selectedTab, setSelectedTab] = useState("all");
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
-  
-  // Запит для отримання зображень галереї
+
+  const currentUserId = 1;
+
   const { data: images, isLoading } = useQuery<GalleryImage[]>({
     queryKey: ['/api/gallery'],
     queryFn: async () => {
-      // Симуляція запиту до API
       return [
         {
           id: 1,
           userId: 1,
-          url: "https://images.unsplash.com/photo-1611501156699-bb36469fcead?q=80&w=2070&auto=format&fit=crop",
-          title: "Акварельний вовк",
-          description: "Вовк в акварельному стилі з елементами геометрії та природи.",
-          tags: ["акварель", "вовк", "геометрія", "природа"],
+          url: aquarelle,
+          title: "Акварельна рибка",
+          description: "Рибка в акварельному стилі виконана у пастельно-бірюзовових кольорах.",
+          tags: ["акварель", "риба", "геометрія", "природа"],
           style: "Акварель",
-          createdAt: "2023-11-15T10:30:00",
+          createdAt: "12.05.2024",
           likes: 24,
           isPublic: true
         },
         {
           id: 2,
           userId: 1,
-          url: "https://images.unsplash.com/photo-1571987502227-9231b837d92a?q=80&w=1974&auto=format&fit=crop",
-          title: "Нео-традиційна роза",
-          description: "Роза в нео-традиційному стилі з елементами готики.",
-          tags: ["роза", "нео-традиційний", "готика", "квіти"],
-          style: "Нео-традиційний",
-          createdAt: "2023-11-10T14:22:00",
+          url: neotraditional,
+          title: "Неотрадиційна тату з дівчиною",
+          description: "Дівчина в нео-традиційному стилі з елементами готики.",
+          tags: ["люди", "нео-традиційний", "готика", "лисиця", "червоний"],
+          style: "Неотрадиційний",
+          createdAt: "12.05.2024",
           likes: 18,
           isPublic: true
         },
         {
           id: 3,
           userId: 1,
-          url: "https://images.unsplash.com/photo-1542727365-19732a80dcfd?q=80&w=1974&auto=format&fit=crop",
-          title: "Геометричний фенікс",
-          description: "Фенікс складений з геометричних фігур в мінімалістичному стилі.",
-          tags: ["геометрія", "фенікс", "мінімалізм", "птахи"],
+          url: geometric,
+          title: "Геометричний ангел",
+          description: "Ангел з елементами геометричних фігур у мінімалістичному стилі.",
+          tags: ["геометрія", "ангели", "мінімалізм", "релігія"],
           style: "Геометричний",
-          createdAt: "2023-11-05T09:15:00",
+          createdAt: "25.05.2025",
           likes: 36,
           isPublic: false
         },
         {
           id: 4,
           userId: 1,
-          url: "https://images.unsplash.com/photo-1611490002-d1f6a1e4f7a9?q=80&w=2070&auto=format&fit=crop",
+          url: dragon,
           title: "Японський дракон",
-          description: "Традиційний японський дракон з елементами сакури та хвиль.",
-          tags: ["японський", "дракон", "сакура", "хвилі"],
+          description: "Традиційний японський дракон з елементами сакури.",
+          tags: ["японський", "дракон", "сакура"],
           style: "Японський",
           createdAt: "2023-10-28T16:45:00",
           likes: 42,
@@ -98,67 +102,46 @@ export default function GalleryPage() {
       ];
     }
   });
-  
-  // Фільтрація зображень за пошуком та стилем
+
   const filteredImages = images ? images.filter(image => {
     const matchesSearch = search === "" || 
       image.title.toLowerCase().includes(search.toLowerCase()) || 
       image.description.toLowerCase().includes(search.toLowerCase()) ||
       image.tags.some(tag => tag.toLowerCase().includes(search.toLowerCase()));
-    
+
     const matchesStyle = selectedStyle === "" || image.style === selectedStyle;
-    
-    return matchesSearch && matchesStyle;
+
+    const matchesTab =
+      selectedTab === "all" ||
+      (selectedTab === "my" && image.userId === currentUserId) ||
+      (selectedTab === "public" && image.isPublic) ||
+      (selectedTab === "private" && !image.isPublic);
+
+    return matchesSearch && matchesStyle && matchesTab;
   }) : [];
-  
-  // Унікальні стилі для фільтрації
+
   const uniqueStyles = images ? [...new Set(images.map(img => img.style))] : [];
-  
-  // Обробник натиснення на зображення
+
   const handleImageClick = (image: GalleryImage) => {
     setSelectedImage(image);
     setIsDetailDialogOpen(true);
   };
-  
-  // Обробник видалення зображення
+
   const handleDelete = (id: number) => {
-    // У реальному проекті тут буде запит до API
     toast({
       title: "Видалено",
       description: "Зображення було успішно видалено з галереї"
     });
     setIsDetailDialogOpen(false);
   };
-  
-  // Компонент завантаження
-  if (isLoading) {
-    return (
-      <div className="container mx-auto py-6">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold mb-2">Галерея</h1>
-          <p className="text-muted-foreground">Завантаження...</p>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Array(6).fill(0).map((_, i) => (
-            <div key={i} className="animate-pulse">
-              <div className="h-56 bg-gray-700 rounded-lg mb-2"></div>
-              <div className="h-4 bg-gray-700 rounded w-2/3 mb-2"></div>
-              <div className="h-3 bg-gray-700 rounded w-1/2"></div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-  
+
   return (
     <div className="container mx-auto py-6">
       <div className="mb-6">
         <h1 className="text-2xl font-bold mb-2">Галерея</h1>
         <p className="text-muted-foreground">Збережені та згенеровані дизайни татуювань</p>
       </div>
-      
+
       <div className="flex flex-col md:flex-row gap-4 mb-6">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
@@ -169,20 +152,16 @@ export default function GalleryPage() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        
+
         <div className="flex gap-2">
-          <Button variant="outline" className="gap-2">
-            <Filter className="h-4 w-4" />
-            Фільтри
-          </Button>
           <Button variant="outline" className="gap-2">
             <Grid3x3 className="h-4 w-4" />
             Вигляд
           </Button>
         </div>
       </div>
-      
-      <Tabs defaultValue="all" className="mb-6">
+
+      <Tabs value={selectedTab} onValueChange={setSelectedTab} className="mb-6">
         <TabsList>
           <TabsTrigger value="all">Всі дизайни</TabsTrigger>
           <TabsTrigger value="my">Мої дизайни</TabsTrigger>
@@ -190,8 +169,7 @@ export default function GalleryPage() {
           <TabsTrigger value="private">Приватні</TabsTrigger>
         </TabsList>
       </Tabs>
-      
-      {/* Фільтр за стилями */}
+
       <div className="flex gap-2 flex-wrap mb-6">
         <Badge 
           variant={selectedStyle === "" ? "secondary" : "outline"}

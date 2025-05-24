@@ -2,6 +2,9 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
+import AquarelleImage from './aquarelle.png';
+import NeotradImage from './neotraditional.jpg';
+import GeometricImage from './geometric.jpg';
 import { 
   Sparkles, 
   Palette, 
@@ -123,7 +126,7 @@ export default function HomePage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
               size="lg" 
-              className="bg-purple-600 hover:bg-purple-700 text-lg"
+              className="bg-purple-700 hover:bg-purple-800 text-lg"
               onClick={() => window.location.href = "/generate"}
             >
               Почати створювати <ArrowRight className="ml-2 h-5 w-5" />
@@ -154,7 +157,7 @@ export default function HomePage() {
             <div className="group relative">
               <div className="overflow-hidden rounded-lg">
                 <img 
-                  src="https://images.unsplash.com/photo-1611501156699-bb36469fcead?q=80&w=2070&auto=format&fit=crop" 
+                  src={AquarelleImage} 
                   alt="Тату дизайн" 
                   className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
                 />
@@ -166,7 +169,7 @@ export default function HomePage() {
             <div className="group relative">
               <div className="overflow-hidden rounded-lg">
                 <img 
-                  src="https://images.unsplash.com/photo-1571987502227-9231b837d92a?q=80&w=1974&auto=format&fit=crop" 
+                  src={NeotradImage}   
                   alt="Тату дизайн" 
                   className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
                 />
@@ -178,7 +181,7 @@ export default function HomePage() {
             <div className="group relative">
               <div className="overflow-hidden rounded-lg">
                 <img 
-                  src="https://images.unsplash.com/photo-1542727365-19732a80dcfd?q=80&w=1974&auto=format&fit=crop" 
+                  src={GeometricImage}  
                   alt="Тату дизайн" 
                   className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
                 />
@@ -312,7 +315,7 @@ export default function HomePage() {
           </p>
           <Button 
             size="lg" 
-            className="bg-purple-600 hover:bg-purple-700 text-lg"
+            className="bg-purple-700 hover:bg-purple-800 text-lg"
             onClick={() => window.location.href = "/generate"}
           >
             Спробувати безкоштовно <ArrowRight className="ml-2 h-5 w-5" />
