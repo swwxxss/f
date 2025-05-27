@@ -27,6 +27,7 @@ export default function AIGeneratorPage() {
 
   const API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
 
+
   const styles = [
     { id: "realistic", name: "Реалістичний" },
     { id: "watercolor", name: "Акварель" },
@@ -41,19 +42,19 @@ export default function AIGeneratorPage() {
 
   const handleGenerate = () => {
     setIsGenerating(true);
-    
-    // Симуляція генерації зображення
+
+
     setTimeout(() => {
-      // Замість фіктивного зображення тут буде API-запит
+ 
       setGeneratedImage("https://images.unsplash.com/photo-1649754621638-a7ae3dfba087?crop=entropy&cs=srgb&fm=jpg&ixid=M3wzMjM4NDZ8MHwxfHJhbmRvbXx8fHx8fHx8fDE3MDEyNjM2NzF8&ixlib=rb-4.0.3&q=85");
       setIsGenerating(false);
     }, 2000);
   };
-const generateTattoo = async () => {
+  const generateTattoo = async () => {
   setIsGenerating(true);
 
+  const promptForApi = `A tattoo design in ${style} style, size: 512x512, ${prompt} .`;
 
-  const prompt = `A tattoo design in ${style} style, size: 256x256, black ink only.`;
   try {
     const response = await fetch("https://api.openai.com/v1/images/generations", {
       method: "POST",
@@ -63,27 +64,44 @@ const generateTattoo = async () => {
       },
       body: JSON.stringify({
         model: "dall-e-2",
-        prompt: prompt,
+        prompt: promptForApi,
         n: 1,
-        size: "256x256", // можна збільшити, наприклад: "1024x1024"
+        size: "512x512",
       }),
     });
 
     const data = await response.json();
 
     if (data?.data?.[0]?.url) {
-      setGeneratedImage(data.data[0].url);
+      const imageUrl = data.data[0].url;
+
+      // Попереднє завантаження зображення
+      const img = new Image();
+      img.src = imageUrl;
+
+      img.onload = () => {
+        setGeneratedImage(imageUrl);
+        setIsGenerating(false);
+        setPrompt("");
+      };
+
+      img.onerror = () => {
+        console.error("Помилка при завантаженні зображення.");
+        alert("Не вдалося завантажити зображення. Спробуйте ще раз.");
+        setIsGenerating(false);
+      };
     } else {
       console.error("Помилка генерації:", data);
       alert("Не вдалося згенерувати зображення. Спробуйте ще раз.");
+      setIsGenerating(false);
     }
   } catch (error) {
     console.error("Помилка під час запиту:", error);
     alert("Щось пішло не так. Перевірте API ключ або інтернет-з'єднання.");
-  } finally {
     setIsGenerating(false);
   }
 };
+
 
   const handleReset = () => {
     setPrompt("");
@@ -101,25 +119,25 @@ const generateTattoo = async () => {
           <h1 className="text-2xl font-bold mb-2">AI Generator</h1>
           <p className="text-muted-foreground">Створюйте унікальні дизайни татуювань за допомогою штучного інтелекту</p>
         </div>
-        
+
         <Tabs defaultValue="text-to-image" className="mb-6">
           <TabsList className="mb-4">
             <TabsTrigger value="text-to-image">Текст в зображення</TabsTrigger>
             <TabsTrigger value="image-to-image">Зображення в зображення</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="text-to-image">
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-2">Опис татуювання</label>
-                <Textarea 
+                <Textarea
                   placeholder="Опишіть докладно, яке татуювання ви хочете створити..."
                   className="h-28"
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium mb-2">Стиль</label>
                 <Select value={style} onValueChange={setStyle}>
@@ -135,11 +153,11 @@ const generateTattoo = async () => {
                   </SelectContent>
                 </Select>
               </div>
-              
 
-              
+
+
               <div className="flex gap-3">
-                <Button 
+                <Button
                   className="flex-1 bg-purple-600 hover:bg-purple-700"
                   onClick={generateTattoo}
                   disabled={!prompt || isGenerating}
@@ -156,8 +174,8 @@ const generateTattoo = async () => {
                     <>Згенерувати</>
                   )}
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={handleReset}
                 >
                   <RotateCcwIcon className="h-4 w-4 mr-1" />
@@ -166,7 +184,7 @@ const generateTattoo = async () => {
               </div>
             </div>
           </TabsContent>
-          
+
           <TabsContent value="image-to-image">
             <div className="flex items-center justify-center h-40 mb-4 border-2 border-dashed border-gray-600 rounded-lg">
               <div className="text-center">
@@ -175,7 +193,7 @@ const generateTattoo = async () => {
                 <p className="mt-2 text-sm text-muted-foreground">Або перетягніть файл сюди</p>
               </div>
             </div>
-            
+
             <div className="text-center mb-4">
               <p className="text-muted-foreground">
                 Ця функція буде доступна найближчим часом.
@@ -184,18 +202,18 @@ const generateTattoo = async () => {
             </div>
           </TabsContent>
         </Tabs>
-        
+
 
       </div>
-      
+
       {/* Права панель */}
       <div className="flex-1">
         {generatedImage ? (
           <div className="space-y-4">
             <div className="bg-secondary rounded-lg overflow-hidden border border-gray-800">
-              <img 
-                src={generatedImage} 
-                alt="Згенероване татуювання" 
+              <img
+                src={generatedImage}
+                alt="Згенероване татуювання"
                 className="w-full h-auto object-cover"
               />
               <div className="p-4">
@@ -215,17 +233,17 @@ const generateTattoo = async () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="space-y-2">
-              <Button 
+              <Button
                 className="w-full bg-purple-600 hover:bg-purple-700"
                 onClick={handleGenerate}
               >
                 Згенерувати ще
               </Button>
               <div className="grid grid-cols-2 gap-2">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="w-full"
                   onClick={() => {
                     // Логіка збереження в галерею
